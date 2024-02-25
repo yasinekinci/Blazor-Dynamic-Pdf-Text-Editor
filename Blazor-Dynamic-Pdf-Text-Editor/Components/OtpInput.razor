@@ -1,0 +1,187 @@
+﻿@using MudBlazor.Utilities;
+@using System.Text;
+
+<div class="@Classname">
+	@for (int a = 0; a < Count; a++)
+	{
+		int b = a;
+		<MudTextField @ref="_elementReferences[b]" T="string" Style="@(Margin == Margin.Dense ? "width: 32px" : "width: 42px")"
+					  Variant="Variant.Outlined" Immediate="true" InputMode="InputMode.numeric" Class="otp-input"
+					  ValueChanged="OnChange" @onkeydown="HandleKeyDown" @onfocus="@(() => CheckFocus(b))" @onblur="SetValue" InputType="InputType.Number" />
+	}
+</div>
+
+@code {
+
+	[Parameter]
+	public string Value { get; set; }
+
+	[Parameter]
+	public EventCallback<string> ValueChanged { get; set; }
+
+	private readonly List<MudTextField<string>> _elementReferences = new();
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public InputType InputType { get; set; } = InputType.Text;
+
+	protected string Classname =>
+				new CssBuilder($"d-flex gap-{Spacing}")
+				.AddClass(Class)
+				.Build();
+
+	protected string InputClassname =>
+		new CssBuilder("justify-text-center")
+			.AddClass("mud-code", Variant != Variant.Text)
+			.AddClass(ClassInput)
+			.Build();
+
+	[Parameter]
+	public string? Class { get; set; }
+
+	private int _lastFocusedIndex = 0;
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public int Spacing { get; set; } = 2;
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public bool Disabled { get; set; }
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public bool ReadOnly { get; set; }
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public Variant Variant { get; set; } = Variant.Text;
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public Margin Margin { get; set; }
+
+	[Parameter]
+	public int Count { get; set; }
+
+	[Parameter]
+	[Category(CategoryTypes.FormComponent.Behavior)]
+	public string ClassInput { get; set; }
+
+	public async Task OnChange(string otpCode)
+	{
+		if (!string.IsNullOrEmpty(otpCode))
+		{
+
+			if (otpCode.Length == 6)
+			{
+				for (int i = 0; i < Count; i++)
+				{
+					var a = i;
+					await _elementReferences[a].SetText(otpCode[a].ToString());
+				}
+				await ValueChanged.InvokeAsync(otpCode);
+				await _elementReferences[5].FocusAsync();
+			}
+			else if (otpCode.Length == 1)
+			{
+				return;
+			}
+			else
+			{
+				await _elementReferences[_lastFocusedIndex].SetText(otpCode[otpCode.Length - 1].ToString());
+			}
+		}
+	}
+
+	public async Task Focus()
+	{
+		await _elementReferences[0].FocusAsync();
+	}
+
+	public async Task SetValue()
+	{
+		StringBuilder result = new();
+		for (int i = 0; i < Count; i++)
+		{
+			var val = _elementReferences[i].Value;
+
+			if (val == null)
+			{
+				continue;
+			}
+
+			result.Append(val.ToString());
+		}
+
+		Value = result.ToString();
+		await ValueChanged.InvokeAsync(Value);
+	}
+
+	protected override void OnInitialized()
+	{
+		base.OnInitialized();
+		SyncReferences();
+	}
+
+	private void SyncReferences()
+	{
+		_elementReferences.Clear();
+		for (int i = 0; i < Count; i++)
+		{
+			_elementReferences.Add(new MudTextField<string>());
+		}
+	}
+
+	protected async Task HandleKeyDown(KeyboardEventArgs arg)
+	{
+		if (Disabled || ReadOnly)
+		{
+			return;
+		}
+
+		if (RuntimeLocation.IsClientSide)
+		{
+			await Task.Delay(100);
+		}
+
+		if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+		{
+			await FocusPrevious();
+			return;
+		}
+
+		if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
+		{
+			await FocusNext();
+		}
+
+	}
+
+	protected async Task CheckFocus(int count)
+	{
+		_lastFocusedIndex = count;
+	}
+
+	public async Task FocusPrevious()
+	{
+		if (_lastFocusedIndex == 0)
+		{
+			await _elementReferences[_lastFocusedIndex].BlurAsync();
+			await _elementReferences[_lastFocusedIndex].FocusAsync();
+			return;
+		}
+		await _elementReferences[_lastFocusedIndex - 1].FocusAsync();
+	}
+
+	public async Task FocusNext()
+	{
+		if (_lastFocusedIndex >= Count - 1)
+		{
+			await _elementReferences[_lastFocusedIndex].BlurAsync();
+			await _elementReferences[_lastFocusedIndex].FocusAsync();
+			return;
+		}
+		await _elementReferences[_lastFocusedIndex + 1].FocusAsync();
+	}
+}

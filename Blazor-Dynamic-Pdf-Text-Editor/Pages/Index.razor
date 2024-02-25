@@ -1,6 +1,9 @@
 ﻿@page "/"
 @using System.Text.Json;
 @inject HttpClient Http
+@using iTextSharp.text;
+@using iTextSharp.text.pdf;
+@using System.Text;
 
 <PageTitle>Pdf Editor</PageTitle>
 
@@ -105,7 +108,7 @@
 
 	public async Task Generate()
 	{
-		var document = new Document
+		var document = new Blazor_Dynamic_Pdf_Text_Editor.Document
 			{
 				Data = PdfData,
 				PageNumber = PageNumber,
@@ -114,12 +117,33 @@
 				YCoordinate = YCoordinate
 			};
 
-		var response = await Http.PostAsJsonAsync<Document>("Generater", document);
+		Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+		BaseFont STF_Helvetica_Turkish = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, "CP1254", BaseFont.NOT_EMBEDDED);
+		iTextSharp.text.Font fontNormal = new iTextSharp.text.Font(STF_Helvetica_Turkish, 12, iTextSharp.text.Font.NORMAL);
 
-		var content = await response.Content.ReadFromJsonAsync<Document>() ?? new Document();
-		await JSRuntime.InvokeVoidAsync("MyJS.SetPageData", Convert.ToBase64String(content.Data));
+		using (MemoryStream ms = new MemoryStream())
+		{
+			using (PdfReader reader = new PdfReader(document.Data))
+			{
+				using (PdfStamper stamper = new PdfStamper(reader, ms))
+				{
+					PdfContentByte cb = stamper.GetOverContent(document.PageNumber);
+					BaseFont bf = BaseFont.CreateFont(BaseFont.TIMES_ROMAN, BaseFont.CP1252, BaseFont.NOT_EMBEDDED);
+					cb.BeginText();
+					cb.SetFontAndSize(bf, 12);
+					cb.SetTextMatrix(0, 0);
+					ColumnText.ShowTextAligned(cb, PdfContentByte.ALIGN_LEFT, new Phrase(document.TextValue, fontNormal), document.XCoordinate, document.YCoordinate, 0);
+					cb.EndText();
+				}
+			}
+			document.Data = ms.ToArray();
+		}
+
+		await JSRuntime.InvokeVoidAsync("MyJS.SetPageData", Convert.ToBase64String(document.Data));
 		await JSRuntime.InvokeVoidAsync("MyJS.ShowPageByNumber", PageNumber);
 
 	}
+
+	
 
 }

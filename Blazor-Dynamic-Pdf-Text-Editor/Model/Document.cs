@@ -1,11 +1,14 @@
-﻿
-public class Document
+﻿namespace Blazor_Dynamic_Pdf_Text_Editor
 {
-	public byte[] Data { get; set; }
-	public string TextValue { get; set; }
-	public int XCoordinate { get; set; }
-	public int YCoordinate { get; set; }
-	public int PageNumber { get; set; }
+	public class Document
+	{
+		public byte[] Data { get; set; }
+		public string TextValue { get; set; }
+		public int XCoordinate { get; set; }
+		public int YCoordinate { get; set; }
+		public int PageNumber { get; set; }
+
+	}
 
 }
 

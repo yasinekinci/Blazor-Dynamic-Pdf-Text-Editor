@@ -1,0 +1,38 @@
+﻿@page "/OtpCode"
+
+@using Blazor_Dynamic_Pdf_Text_Editor.Components
+
+
+
+<OtpInput ClassInput="align-center justify-center" Count="6" Spacing="2" Variant="Variant.Outlined" Value="SmsOtp" ValueChanged="SmsOtpChanged" Class="code-input" />
+
+
+@code{
+	public string SmsOtp { get; set; }
+	public string? SmsOtpToken { get; set; }
+	public bool ShowSmsOtp { get; set; }
+	private int SmsOtpErrorCounter { get; set; }
+	private const string successStatusCode = "Success";
+	private const string errorStatusCode = "Error";
+	private bool ShowErrorMessage { get; set; }
+	public string ErrorMessage { get; set; }
+	private bool ContinueButtonDisabled { get; set; } = true;
+
+	private void SmsOtpChanged(string otp)
+	{
+		SmsOtp = otp;
+		if (ShowSmsOtp)
+		{
+			if (SmsOtp?.ToString().Length == 6)
+			{
+				ShowErrorMessage = false;
+				ContinueButtonDisabled = false;
+			}
+			else
+			{
+				ContinueButtonDisabled = true;
+			}
+		}
+	}
+
+}
