@@ -192,8 +192,9 @@
 			{
 				await Task.Delay(100);
 			}
-			if (arg != null)
+			try
 			{
+
 				if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
 				{
 					await FocusPrevious();
@@ -204,12 +205,18 @@
 				{
 					await FocusNext();
 				}
+
 			}
+			catch (Exception ex )
+			{
+				Snackbar.Add("HandleKeyDown arg.Key : " + ex.Message + " <-> " + ex.StackTrace);
+			}
+
 
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("HandleKeyDown  : " + ex.Message + " <-> " + ex.StackTrace);
+			Snackbar.Add("RuntimeLocation  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 
