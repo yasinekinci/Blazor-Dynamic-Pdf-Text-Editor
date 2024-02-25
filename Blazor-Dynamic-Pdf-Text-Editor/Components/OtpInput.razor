@@ -194,22 +194,24 @@
 			}
 			try
 			{
-
-				if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+				if (!string.IsNullOrEmpty(arg.Key))
 				{
-					await FocusPrevious();
-					return;
-				}
+					if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+					{
+						await FocusPrevious();
+						return;
+					}
 
-				if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
-				{
-					await FocusNext();
-				}
+					if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
+					{
+						await FocusNext();
+					}
+				}				
 
 			}
 			catch (Exception ex )
 			{
-				Snackbar.Add("HandleKeyDown arg.Key : " + ex.Message + " <-> " + ex.StackTrace);
+				Snackbar.Add("HandleKeyDown arg.Key : " + arg.Key);
 			}
 
 
