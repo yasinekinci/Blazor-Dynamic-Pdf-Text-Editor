@@ -99,7 +99,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("OnChange  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("OnChange  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 
@@ -113,7 +113,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("Focus  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("Focus  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -140,7 +140,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("SetValue  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("SetValue  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -154,7 +154,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("OnInitialized  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("OnInitialized  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -171,7 +171,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("SyncReferences  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("SyncReferences  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -180,6 +180,9 @@
 	{
 		try
 		{
+
+			Snackbar.Add("HandleKeyDown  Key :" + arg == null ? "Boş" : "Dolu");
+
 			if (Disabled || ReadOnly)
 			{
 				return;
@@ -189,21 +192,24 @@
 			{
 				await Task.Delay(100);
 			}
-
-			if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+			if (arg != null)
 			{
-				await FocusPrevious();
-				return;
+				if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+				{
+					await FocusPrevious();
+					return;
+				}
+
+				if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
+				{
+					await FocusNext();
+				}
 			}
 
-			if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
-			{
-				await FocusNext();
-			}
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("HandleKeyDown  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("HandleKeyDown  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 
@@ -218,7 +224,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("CheckFocus  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("CheckFocus  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -237,7 +243,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("FocusPrevious  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("FocusPrevious  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
@@ -256,7 +262,7 @@
 		}
 		catch (Exception ex)
 		{
-			Snackbar.Add("FocusNext  : " + ex.Message +" <-> " +ex.StackTrace);
+			Snackbar.Add("FocusNext  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
 
 	}
