@@ -1,7 +1,6 @@
 ﻿@using MudBlazor.Utilities;
 @using System.Text;
 
-@inject ISnackbar Snackbar
 
 <div class="@Classname">
 	@for (int a = 0; a < Count; a++)
@@ -12,6 +11,11 @@
 					  ValueChanged="OnChange" @onkeydown="HandleKeyDown" @onfocus="@(() => CheckFocus(b))" @onblur="SetValue" InputType="InputType.Number" />
 	}
 </div>
+
+@foreach ( var log in Snackbar)
+{
+	<div>@log </div>
+}
 
 @code {
 
@@ -70,19 +74,28 @@
 	[Category(CategoryTypes.FormComponent.Behavior)]
 	public string ClassInput { get; set; }
 
+	public List<string> Snackbar { get; set; } = new();
+
 	public async Task OnChange(string otpCode)
 	{
 		try
 		{
 			if (!string.IsNullOrEmpty(otpCode))
 			{
-
+				Snackbar.Add("Otp Code  : " + otpCode);
 				if (otpCode.Length == 6)
 				{
 					for (int i = 0; i < Count; i++)
 					{
 						var a = i;
 						await _elementReferences[a].SetText(otpCode[a].ToString());
+
+						if (_elementReferences[a] != null)
+						{
+							Snackbar.Add("Otp Code elementRefences  : " + a);
+						}
+
+						Snackbar.Add("Otp Code for  : " + otpCode[a].ToString());
 					}
 					await ValueChanged.InvokeAsync(otpCode);
 					await _elementReferences[5].FocusAsync();
@@ -101,8 +114,6 @@
 		{
 			Snackbar.Add("OnChange  : " + ex.Message + " <-> " + ex.StackTrace);
 		}
-
-
 	}
 
 	public async Task Focus()
@@ -175,7 +186,7 @@
 		}
 
 	}
-
+	public int HandleKeyDownCount { get; set; }
 	protected async Task HandleKeyDown(KeyboardEventArgs arg)
 	{
 		try
@@ -206,10 +217,10 @@
 					{
 						await FocusNext();
 					}
-				}				
+				}
 
 			}
-			catch (Exception ex )
+			catch (Exception ex)
 			{
 				Snackbar.Add("HandleKeyDown arg.Key : " + arg.Key);
 			}
