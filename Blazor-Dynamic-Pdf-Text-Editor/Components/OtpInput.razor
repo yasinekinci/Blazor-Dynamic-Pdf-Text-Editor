@@ -1,6 +1,8 @@
 ﻿@using MudBlazor.Utilities;
 @using System.Text;
 
+@inject ISnackbar Snackbar
+
 <div class="@Classname">
 	@for (int a = 0; a < Count; a++)
 	{
@@ -70,118 +72,192 @@
 
 	public async Task OnChange(string otpCode)
 	{
-		if (!string.IsNullOrEmpty(otpCode))
+		try
 		{
+			if (!string.IsNullOrEmpty(otpCode))
+			{
 
-			if (otpCode.Length == 6)
-			{
-				for (int i = 0; i < Count; i++)
+				if (otpCode.Length == 6)
 				{
-					var a = i;
-					await _elementReferences[a].SetText(otpCode[a].ToString());
+					for (int i = 0; i < Count; i++)
+					{
+						var a = i;
+						await _elementReferences[a].SetText(otpCode[a].ToString());
+					}
+					await ValueChanged.InvokeAsync(otpCode);
+					await _elementReferences[5].FocusAsync();
 				}
-				await ValueChanged.InvokeAsync(otpCode);
-				await _elementReferences[5].FocusAsync();
-			}
-			else if (otpCode.Length == 1)
-			{
-				return;
-			}
-			else
-			{
-				await _elementReferences[_lastFocusedIndex].SetText(otpCode[otpCode.Length - 1].ToString());
+				else if (otpCode.Length == 1)
+				{
+					return;
+				}
+				else
+				{
+					await _elementReferences[_lastFocusedIndex].SetText(otpCode[otpCode.Length - 1].ToString());
+				}
 			}
 		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
+
 	}
 
 	public async Task Focus()
 	{
-		await _elementReferences[0].FocusAsync();
+		try
+		{
+			await _elementReferences[0].FocusAsync();
+		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 
 	public async Task SetValue()
 	{
-		StringBuilder result = new();
-		for (int i = 0; i < Count; i++)
+		try
 		{
-			var val = _elementReferences[i].Value;
-
-			if (val == null)
+			StringBuilder result = new();
+			for (int i = 0; i < Count; i++)
 			{
-				continue;
+				var val = _elementReferences[i].Value;
+
+				if (val == null)
+				{
+					continue;
+				}
+
+				result.Append(val.ToString());
 			}
 
-			result.Append(val.ToString());
+			Value = result.ToString();
+			await ValueChanged.InvokeAsync(Value);
+		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
 		}
 
-		Value = result.ToString();
-		await ValueChanged.InvokeAsync(Value);
 	}
 
 	protected override void OnInitialized()
 	{
-		base.OnInitialized();
-		SyncReferences();
+		try
+		{
+			base.OnInitialized();
+			SyncReferences();
+		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 
 	private void SyncReferences()
 	{
-		_elementReferences.Clear();
-		for (int i = 0; i < Count; i++)
+		try
 		{
-			_elementReferences.Add(new MudTextField<string>());
+			_elementReferences.Clear();
+			for (int i = 0; i < Count; i++)
+			{
+				_elementReferences.Add(new MudTextField<string>());
+			}
 		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 
 	protected async Task HandleKeyDown(KeyboardEventArgs arg)
 	{
-		if (Disabled || ReadOnly)
+		try
 		{
-			return;
+			if (Disabled || ReadOnly)
+			{
+				return;
+			}
+
+			if (RuntimeLocation.IsClientSide)
+			{
+				await Task.Delay(100);
+			}
+
+			if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
+			{
+				await FocusPrevious();
+				return;
+			}
+
+			if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
+			{
+				await FocusNext();
+			}
+		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
 		}
 
-		if (RuntimeLocation.IsClientSide)
-		{
-			await Task.Delay(100);
-		}
-
-		if (arg.Key == "Backspace" || arg.Key == "ArrowLeft")
-		{
-			await FocusPrevious();
-			return;
-		}
-
-		if (arg.Key.Length == 1 || arg.Key == "ArrowRight")
-		{
-			await FocusNext();
-		}
 
 	}
 
 	protected async Task CheckFocus(int count)
 	{
-		_lastFocusedIndex = count;
+		try
+		{
+			_lastFocusedIndex = count;
+
+		}
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 
 	public async Task FocusPrevious()
 	{
-		if (_lastFocusedIndex == 0)
+		try
 		{
-			await _elementReferences[_lastFocusedIndex].BlurAsync();
-			await _elementReferences[_lastFocusedIndex].FocusAsync();
-			return;
+			if (_lastFocusedIndex == 0)
+			{
+				await _elementReferences[_lastFocusedIndex].BlurAsync();
+				await _elementReferences[_lastFocusedIndex].FocusAsync();
+				return;
+			}
+			await _elementReferences[_lastFocusedIndex - 1].FocusAsync();
 		}
-		await _elementReferences[_lastFocusedIndex - 1].FocusAsync();
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 
 	public async Task FocusNext()
 	{
-		if (_lastFocusedIndex >= Count - 1)
+		try
 		{
-			await _elementReferences[_lastFocusedIndex].BlurAsync();
-			await _elementReferences[_lastFocusedIndex].FocusAsync();
-			return;
+			if (_lastFocusedIndex >= Count - 1)
+			{
+				await _elementReferences[_lastFocusedIndex].BlurAsync();
+				await _elementReferences[_lastFocusedIndex].FocusAsync();
+				return;
+			}
+			await _elementReferences[_lastFocusedIndex + 1].FocusAsync();
 		}
-		await _elementReferences[_lastFocusedIndex + 1].FocusAsync();
+		catch (Exception ex)
+		{
+			Snackbar.Add(ex.Message);
+		}
+
 	}
 }
