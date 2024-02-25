@@ -7,20 +7,33 @@
 	{
 		int b = a;
 		<MudTextField @ref="_elementReferences[b]" T="string" Style="@(Margin == Margin.Dense ? "width: 32px" : "width: 42px")"
-					  Variant="Variant.Outlined" Immediate="true" InputMode="InputMode.numeric" Class="otp-input"
+					  Variant="Variant.Outlined" Immediate="true" InputMode="InputMode.numeric" Class="otp-input" Value="Value"
 					  ValueChanged="OnChange" @onkeydown="HandleKeyDown" @onfocus="@(() => CheckFocus(b))" @onblur="SetValue" InputType="InputType.Number" />
 	}
 </div>
 
-@foreach ( var log in Snackbar)
+@foreach (var log in Snackbar)
 {
 	<div>@log </div>
 }
 
 @code {
+	public string _value { get; set; }
 
 	[Parameter]
-	public string Value { get; set; }
+	public string Value
+	{
+
+		get
+		{
+			return _value;
+		}
+		set
+		{
+			_value = value;
+			Snackbar.Add("Value  : " + _value);
+		}
+	}
 
 	[Parameter]
 	public EventCallback<string> ValueChanged { get; set; }
@@ -32,15 +45,15 @@
 	public InputType InputType { get; set; } = InputType.Text;
 
 	protected string Classname =>
-				new CssBuilder($"d-flex gap-{Spacing}")
-				.AddClass(Class)
-				.Build();
+		new CssBuilder($"d-flex gap-{Spacing}")
+		.AddClass(Class)
+		.Build();
 
 	protected string InputClassname =>
-		new CssBuilder("justify-text-center")
-			.AddClass("mud-code", Variant != Variant.Text)
-			.AddClass(ClassInput)
-			.Build();
+	new CssBuilder("justify-text-center")
+	.AddClass("mud-code", Variant != Variant.Text)
+	.AddClass(ClassInput)
+	.Build();
 
 	[Parameter]
 	public string? Class { get; set; }
@@ -133,6 +146,9 @@
 	{
 		try
 		{
+
+			Snackbar.Add("SetValue : " + Value);
+
 			StringBuilder result = new();
 			for (int i = 0; i < Count; i++)
 			{
@@ -218,11 +234,12 @@
 						await FocusNext();
 					}
 				}
+				Snackbar.Add("HandleKeyDown arg.Key : " + arg.Key);
 
 			}
 			catch (Exception ex)
 			{
-				Snackbar.Add("HandleKeyDown arg.Key : " + arg.Key);
+				Snackbar.Add("HandleKeyDown ex arg.Key : " + arg.Key);
 			}
 
 
@@ -286,4 +303,25 @@
 		}
 
 	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		Snackbar.Add("OnAfterRender : " + Value);
+		base.OnAfterRender(firstRender);
+
+	}
+
+	protected override void OnParametersSet()
+	{
+		Snackbar.Add("OnParametersSet : " + Value);
+		base.OnParametersSet();
+
+	}
+
+	public override Task SetParametersAsync(ParameterView parameters)
+	{
+		Snackbar.Add("SetParametersAsync : " + parameters.ToString());
+		return base.SetParametersAsync(parameters);
+	}
+
 }
